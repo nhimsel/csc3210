@@ -1,5 +1,7 @@
 #lang racket
 
+;; initial code from w4d1 assignment post
+
 (define scope (list '(a 1) '(b 2)))
 
 ;minor modifications to initial resolve function
