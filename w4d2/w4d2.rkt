@@ -1,6 +1,7 @@
 #lang racket
 
 ;; initial code from w4d2 assignment post
+;; implemented store_env, modify_env
 
 (define scope (list '(a 1) '(b 2)))
 

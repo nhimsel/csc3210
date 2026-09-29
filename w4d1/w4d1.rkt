@@ -1,6 +1,7 @@
 #lang racket
 
 ;; initial code from w4d1 assignment post
+;; implemented store, modify
 
 (define scope (list '(a 1) '(b 2)))
 
