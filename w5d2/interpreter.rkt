@@ -34,7 +34,8 @@
                         (cdr env))))
               (cadr parsed-exp) (cadddr parsed-exp))
          (update_environment env))
-       (let ((out (process (caddr parsed-exp))))
+       ;; eval
+       (let ((out (begin (process (caddr parsed-exp)))))
          (update_environment (cdr environment))
          out)]
       [else (displayln "ERROR: expression has not been supported yet.")])))

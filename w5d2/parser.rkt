@@ -17,14 +17,13 @@
         (parse (cadr exp))
         (parse (cadddr exp)))]
       [(equal? 'function (car exp))
-       (list
-        'func-exp
-        (list (parse (cadr (cadr exp)))
-              (parse (caddr (cadr exp))))
-        (parse (caddr exp))
-        (list (parse (car (cadddr exp)))
-              (parse (cadr (cadddr exp))))
-        )]
+       (if (eq? (length (cdadr exp)) (length (cadddr exp)))
+           (list
+            'func-exp
+            (map parse (cdadr exp))
+            (parse (caddr exp))
+            (map parse (cadddr exp)))
+           (displayln "PARSER ERROR: parameter counts don't match"))]
       [else
        (displayln "PARSER ERROR: the statement has not been supported yet.")]
     )
