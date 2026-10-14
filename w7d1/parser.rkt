@@ -22,11 +22,11 @@
         (parse (cadr exp))
         (cons 'bulk-exp (map parse (caddr exp))))]
       [(equal? 'do (car exp))
-       (let ((parsed (map parse (cadr exp))))
+       (let ((parsed (cons 'bulk-exp (map parse (cadr exp)))))
          (cons 'bulk-exp
                (list
-                (cons 'bulk-exp parsed)
-                (cons 'while-exp (cons (parse (cadddr exp)) parsed)))))]
+                parsed
+                (cons 'while-exp (list (parse (cadddr exp)) parsed)))))]
       ;a math is a triple element list, and the second element is a valid operator
       ;1 + a
       [(and (equal? '= (cadr exp)) (equal? 3 (length exp)))

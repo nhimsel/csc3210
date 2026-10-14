@@ -1,6 +1,7 @@
 #lang racket
 
-; code unmodified from w7d1 assignment post
+; initial code from w7d1 assignment post
+; replaced wolf_env with a correct implementation from my w4d2 submission
 
 (define
   scope
@@ -53,6 +54,20 @@
       )
     )
   )
+
+;; store a value in the current scope if it is not found in the environment
+(define store_env (lambda (env var val)
+                    (let ((new (let ((local (car env)))
+                                 (cond
+                                  [(null? local) (cons (list var val) local)]
+                                  [(void? (resolve_env env var))
+                                   (cons (list var val) local)]
+                                  [else
+                                   (displayln "ERROR: Variable already defined in environment")]))))
+                      (if (or (equal? new env) (void? new))
+                          (void)
+                          (set! environment (list new))))))
+
 ;define a function that can override the value of an existed variable name
 (define
   update_pair
@@ -92,42 +107,23 @@
 ;expland the wolf(insert or update) to the variable environment
 ;we need to confirm there is no scope contains the variable name, then we will insert into the top scope of the environment (as a stack)
 ;otherwise, we will try to check which scope has the variable name, and update it.
-(define
-  wolf_env
-  (lambda (var_env var_name var_value)
-    (cond
-      ;when variable has not been take, insert into the top scope
-      ((void? (resolve_env var_env var_name))
-       ;wolf is updating the global variable scope
-       (if
-        (null? var_env)
-        (list (list var_name var_value))
-        (set! environment (append (list (cons (list var_name var_value) (car var_env))) (cdr var_env)))
-        ))
-      (else
-       (letrec
-           ((update_env (lambda (left right)
-                          (cond
-                            ;if the right is empty, return left
-                            ((null? right) left)
-                            ;if the first scope of the right has the variable, update it, and move it to the left, and return the left + right
-                            ((not (void? (resolve (car right) var_name)))
-                             (append
-                              left
-                             (list (update_scope (car right) var_name var_value))
-                             (cdr right)))
-                            (else
-                             (update_env (append left (list (car right))) (cdr right)))
-                            )
-                          )
-                        )
-            )
-         (set! environment (update_env '() var_env))
-         )
-       )
-      )
-    )
-  )
+(define wolf_env (lambda (env var val)
+                   (let ((new (let search ((cur env))
+                                (cond
+                                  [(null? cur) (begin (store_env env var val)
+                                                      null)]
+                                  [(void? (resolve (car cur) var))
+                                   (cons (car cur) (search (cdr cur)))]
+                                  [else
+                                   (cons (map (lambda (pair)
+                                                (if (eq? (car pair) var)
+                                                    (list var val)
+                                                    pair))
+                                              (car cur))
+                                         (cdr cur))]))))
+                     (if (equal? new env)
+                         (void)
+                         (set! environment new)))))
 
 (define
   is_valid_math_op
